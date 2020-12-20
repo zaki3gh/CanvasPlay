@@ -1,0 +1,116 @@
+﻿<Page
+    x:Name="pageRoot"
+    x:Class="MyApps.CanvasPlay.ShareTargetPage"
+    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MyApps.CanvasPlay"
+    xmlns:common="using:MyApps.CanvasPlay.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:ExtensionType="ShareTarget">
+
+    <Page.Resources>
+        <common:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <common:BooleanNegationConverter x:Key="BooleanNegationConverter"/>
+    </Page.Resources>
+
+    <!--
+        このグリッドは 3 つの行を定義するページのルート パネルとして機能します:
+        * 行 0 には標準の共有ターゲット ヘッダーが含まれます
+        * 行 1 には Comment を追加するための TextBox が含まれます
+        * 行 2 には標準の共有ターゲット フッターが含まれます
+    -->
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+
+        <Grid Margin="40,20,40,60">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 標準の共有ターゲット ヘッダーは、共有アイテムに関するメタデータを表示します-->
+            <StackPanel Grid.Column="1">
+                <TextBlock
+                    Text="{Binding Title}"
+                    Margin="0,-10,0,20"
+                    TextWrapping="NoWrap"
+                    Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    Style="{StaticResource SubheaderTextBlockStyle}"/>
+                <TextBlock
+                    Text="{Binding Description}"
+                    MaxHeight="60"
+                    Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    Style="{StaticResource BodyTextBlockStyle}"/>
+            </StackPanel>
+
+            <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                <!-- TODO: アプリケーションのシナリオ固有の共有 UI を追加します-->
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <AppBarButton 
+                    Grid.Row="0" HorizontalAlignment="Right"
+                    Icon="Edit" Label="{Binding Source={StaticResource MyResource}, Path=[CanvasPageEditToolsPanelStrokeColorButton]}"
+                    IsCompact="False">
+                    <Button.Flyout>
+                        <Flyout Opened="strokeColorPickerFlyout_Opened">
+                            <local:ColorPicker 
+                                x:Name="strokeColorPicker" 
+                                Title="{Binding Source={StaticResource MyResource}, Path=[CanvasPageEditToolsPanelStrokeColorButton], Mode=OneTime}"
+                                CloseButtonVisibility="Collapsed" />
+                        </Flyout>
+                    </Button.Flyout>
+                </AppBarButton>
+
+                <Viewbox Grid.Row="1">
+                    <Border x:Name="canvasBorder" BorderBrush="{StaticResource ApplicationForegroundThemeBrush}" BorderThickness="1">
+                        <local:CanvasControl x:Name="mainCanvas" Width="1366" Height="768" 
+                            StrokeColor="{Binding Color.Color, ElementName=strokeColorPicker}" />
+                    </Border>
+                </Viewbox>
+
+                <ProgressRing 
+                    Grid.Row="2"
+                    IsActive="{Binding LoadingItem}"
+                    />
+            </Grid>
+
+            <!-- 標準の共有ターゲット フッター -->
+            <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                <ProgressRing
+                    IsActive="{Binding Sharing}"
+                    MinWidth="20"
+                    MinHeight="20"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Margin="0,5,0,0"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            Visibility="{Binding EditButtonsVisibility}">
+                    <AppBarButton
+                        Icon="Save" Label="{Binding Source={StaticResource MyResource}, Path=[CanvasPageAppBarSaveButton]}"
+                        IsEnabled="{Binding Sharing, Converter={StaticResource BooleanNegationConverter}}"
+                        Click="ShareButton_Click"/>
+                    <AppBarButton
+                        Icon="Cancel" Label="{Binding Source={StaticResource MyResource}, Path=[CanvasPageAppBarCancelButton]}" 
+                        IsEnabled="{Binding Sharing, Converter={StaticResource BooleanNegationConverter}}" Click="cancelButton_Click" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

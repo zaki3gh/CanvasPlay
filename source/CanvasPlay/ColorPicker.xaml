@@ -1,0 +1,124 @@
+﻿<UserControl
+    x:Class="MyApps.CanvasPlay.ColorPicker"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MyApps.CanvasPlay"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+    
+    <UserControl.Resources>
+        <local:ColorBrushConverter x:Key="ColorBrushConverter" />
+        <local:ByteDoubleConverter x:Key="ByteDoubleConverter" />
+        <local:ByteDoubleConverter x:Key="ByteDoubleConverterAlpha" Scale="-1.0" TranslationAfterScaling="255.0" />
+
+        <Style TargetType="Slider" x:Key="RGBASliderStyle">
+            <Setter Property="Maximum" Value="255.0" />
+            <Setter Property="Minimum" Value="0.0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+        
+        <Style TargetType="TextBlock" x:Key="RGBASliderTextStyle" BasedOn="{StaticResource BasicTextStyle}">
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="5, 0" />
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- back button / title -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Button Style="{StaticResource AppBarButtonStyle}" Content="&#xE110;" Margin="-20, -10, 0, -20" Click="CloseButton_Click" Visibility="{Binding CloseButtonVisibility}" />
+            <TextBlock 
+                Text="{Binding Title}"
+                TextWrapping="NoWrap"
+                Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                Style="{StaticResource SubheaderTextStyle}"/>
+
+        </StackPanel>
+        
+        <!-- current -->
+        <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                   Height="30" Margin="5"
+                   Stroke="{StaticResource ApplicationForegroundThemeBrush}"
+                   Fill="{Binding Path=Color.Color, Converter={StaticResource ColorBrushConverter}}" />
+
+        <!-- List -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource BasicTextStyle}" 
+                   HorizontalAlignment="Center" Margin="5" 
+                   Text="{Binding Source={StaticResource MyResource}, Path=[ColorPickerChooseFromListCaption]}" />
+        <ListBox x:Name="colorListBox" Grid.Row="3" Grid.RowSpan="2" Grid.Column="0" Width="100" 
+                 Height="{Binding Path=ActualHeight, ElementName=directChooseColorGrid}"
+                 Margin="5"
+                 SelectionMode="Single"
+                 SelectionChanged="colorListBox_SelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Rectangle
+                        Fill="{Binding Path=Color, Converter={StaticResource ColorBrushConverter}}" 
+                        Stroke="{StaticResource ApplicationForegroundThemeBrush}"
+                        Width="60" Height="30" Margin="5, 2" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            
+            <local:ColorValue Color="Black" />
+            <local:ColorValue Color="Gray" />
+            <local:ColorValue Color="White" />
+            <local:ColorValue Color="Red" />
+            <local:ColorValue Color="Yellow" />
+            <local:ColorValue Color="Green" />
+            <local:ColorValue Color="Blue" />
+        </ListBox>
+
+        <!-- Advanced -->
+        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource BasicTextStyle}" 
+                   HorizontalAlignment="Center" Margin="5" 
+                   Text="{Binding Source={StaticResource MyResource}, Path=[ColorPickerChooseDirectlyCaption]}" />
+        <Grid Grid.Row="3" Grid.Column="1" x:Name="directChooseColorGrid" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource RGBASliderTextStyle}" HorizontalAlignment="Center" Text="{Binding Source={StaticResource MyResource}, Path=[ColorPickerRed]}" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource RGBASliderTextStyle}" HorizontalAlignment="Left" Text="{Binding Value, ElementName=rSlider}"/>
+            <Slider x:Name="rSlider" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource RGBASliderStyle}" 
+                    Value="{Binding Path=Color.R, Mode=TwoWay, Converter={StaticResource ByteDoubleConverter}}" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource RGBASliderTextStyle}" HorizontalAlignment="Center" Text="{Binding Source={StaticResource MyResource}, Path=[ColorPickerGreen]}" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource RGBASliderTextStyle}" HorizontalAlignment="Left" Text="{Binding Value, ElementName=gSlider}"/>
+            <Slider x:Name="gSlider" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource RGBASliderStyle}" 
+                    Value="{Binding Path=Color.G, Mode=TwoWay, Converter={StaticResource ByteDoubleConverter}}" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource RGBASliderTextStyle}" HorizontalAlignment="Center" Text="{Binding Source={StaticResource MyResource}, Path=[ColorPickerBlue]}" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource RGBASliderTextStyle}" HorizontalAlignment="Left" Text="{Binding Value, ElementName=bSlider}"/>
+            <Slider x:Name="bSlider" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource RGBASliderStyle}" 
+                    Value="{Binding Path=Color.B, Mode=TwoWay, Converter={StaticResource ByteDoubleConverter}}" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource RGBASliderTextStyle}" HorizontalAlignment="Center" Text="{Binding Source={StaticResource MyResource}, Path=[ColorPickerAlpha]}" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource RGBASliderTextStyle}" HorizontalAlignment="Left" Text="{Binding Value, ElementName=aSlider}"/>
+            <Slider x:Name="aSlider" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource RGBASliderStyle}" 
+                    Value="{Binding Path=Color.A, Mode=TwoWay, Converter={StaticResource ByteDoubleConverterAlpha}}" />
+        </Grid>
+    </Grid>
+</UserControl>
